@@ -1,0 +1,71 @@
+import prisma from "../../../config/prisma.js";
+
+export async function getJobSchedulesForAsset(req, res) {
+  const { id } = req.params;
+  const accountId = req.user.accountId;
+
+  try {
+    const schedules = await prisma.jobSchedule.findMany({
+      where: {
+        accountId,
+        assets: {
+          some: {
+            id: id,
+          },
+        },
+      },
+      include: {
+        location: { select: { materialisedPath: true } },
+      },
+    });
+
+    res.status(200).json(schedules);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch jobs" });
+  }
+}
+
+export async function linkAssetToJobSchedules(req, res) {
+  const { id } = req.params;
+  const scheduleIds = req.body;
+
+  try {
+    await prisma.asset.update({
+      where: { id },
+      data: {
+        jobSchedules: {
+          connect: scheduleIds.map((scheduleId) => ({ id: scheduleId })),
+        },
+      },
+    });
+
+    res.status(200).send();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to link asset to job schedules." });
+  }
+}
+
+export async function unlinkAssetFromJobSchedules(req, res) {
+  const { id } = req.params;
+  const scheduleIds = req.body;
+
+  try {
+    await prisma.asset.update({
+      where: { id },
+      data: {
+        jobSchedules: {
+          disconnect: scheduleIds.map((scheduleId) => ({ id: scheduleId })),
+        },
+      },
+    });
+
+    res.status(200).send();
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "Failed to unlink asset from job schedules." });
+  }
+}

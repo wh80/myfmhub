@@ -1,0 +1,493 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                  String    @id @default(uuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  description         String
+  address         String?
+  telephone         String?
+
+  locations Location[]
+  locationCategories  LocationCategory[]
+  jobs      Job[]
+  assignments Assignment[]
+  jobCategories  JobCategory[]
+  assets  Asset[]
+  assetCategories AssetCategory[]
+  suppliers Supplier[]
+  skillCategories SkillCategory[]
+  files File[]
+  filesCategories FileCategory[]
+  jobSchedules  JobSchedule[]
+  jobScheduleCategories JobScheduleCategory[]
+  people Person[]
+  users User[]
+  permissionGroups PermissionGroup[]
+  jobEvents JobEvent[]
+  settings  AccountSetting?
+}
+
+model AccountSetting{
+  id                  String    @id @default(uuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  ignoreWeekendDays   Boolean  @default(true) // job schedule, next create date ignores weekends
+  overrideNextDueDate Boolean @default(false) // job schedule - update nextDue based on prev. job close date
+  autoApproveJobs      Boolean @default(false) 
+
+  accountId String  @unique
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+}
+
+
+
+model Location {
+  id                  String    @id @default(uuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  description             String
+  address         String?
+  telephone         String?
+
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+
+  category   LocationCategory? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String?
+
+  jobs  Job[]
+  assets  Asset[] 
+  jobSchedules JobSchedule[]
+  people  Person[]
+  files File[]
+
+   // Hierarchy Fields
+  parent   Location?  @relation("LocationHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  parentId String?
+  children   Location[] @relation("LocationHierarchy")
+  materialisedPath Json
+
+  @@index([parentId])
+  @@index([materialisedPath], type: Gin) 
+  
+}
+
+
+
+model Job {
+  id                  String    @id @default(uuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  summary             String
+  description         String?
+  dueBy               DateTime?
+  
+  statutoryCompliance Boolean  @default(false)
+  source              JobSource @default(Reactive)
+
+  createdBy   Person? @relation("JobCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  createdById String? 
+
+  approvedAt              DateTime? 
+  approvedBy              Person? @relation("JobApprover", fields: [approvedById], references: [id], onDelete: Cascade)
+  approvedById            String? 
+
+  rejectedAt              DateTime? 
+  rejectedBy              Person? @relation("JobRejector", fields: [rejectedById], references: [id], onDelete: Cascade)
+  rejectedById            String? 
+  rejectionReason         String?
+ 
+  
+  closedAt                DateTime? 
+
+  status  JobStatus @default(New)      
+
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+
+  location   Location? @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  locationId String?
+
+  category   JobCategory? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String?
+
+  jobSchedule   JobSchedule? @relation(fields: [jobScheduleId], references: [id], onDelete: Cascade)
+  jobScheduleId String?
+
+  files File[]
+  assets  Asset[]
+  events JobEvent[]
+  assignments Assignment[]
+
+}
+
+enum JobSource {
+  Scheduled 
+  Reactive
+}
+
+enum JobStatus {
+  New 
+  Rejected
+  Open
+  Closed
+  
+}
+
+model Assignment{
+  id                  String    @id @default(uuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  createdBy   Person? @relation("AssignmentCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  createdById String?
+
+  status  AssignmentStatus
+
+  acceptedAt              DateTime?
+  rejectedAt              DateTime? 
+  rejectionReason         String?
+
+  workDescription      String
+
+  workScheduledForDate          DateTime? @db.Date
+  workScheduledForComments      String?
+  workStartedAt                   DateTime? 
+  workPausedAt                    DateTime? 
+  workPausedComments             String?
+  workRestartedAt                DateTime? 
+  workCompletedAt                DateTime? 
+  workCompletedComments          String?
+  workRejectedAt                DateTime? 
+  workRejectedComments          String?
+
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+
+  job   Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobId String
+
+  assignedPerson   Person? @relation("AssignedPerson", fields: [assignedPersonId], references: [id], onDelete: Cascade)
+  assignedPersonId String?
+
+  assignedSupplier   Supplier? @relation("AssignedSupplier",fields: [assignedSupplierId], references: [id], onDelete: Cascade)
+  assignedSupplierId String?
+
+}
+
+enum AssignmentStatus {
+  Issued 
+  Open
+  Rejected
+  Completed  
+}
+
+model JobEvent{
+  id                  String    @id @default(uuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  title               String 
+  description         String?
+
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+
+  job   Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobId String
+
+}
+
+model Asset {
+  id                  String    @id @default(uuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+ 
+  description         String
+  assetNumber         String?
+  make         String?
+  model         String?
+  serialNumber         String?
+   
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+
+  location   Location? @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  locationId String?
+
+  category   AssetCategory? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String?
+
+  files File[]
+  jobs  Job[]
+  jobSchedules  JobSchedule[]
+
+}
+
+model Supplier {
+  id                  String    @id @default(uuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  description         String
+  address             String?
+  telephone           String?
+ email           String?
+
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+ 
+  assignments  Assignment[] @relation("AssignedSupplier")
+  skills SkillCategory[]
+  files File[]
+
+}
+
+
+
+model File {
+  id                  String    @id @default(uuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  description         String
+  key         String  //Key provided by spaces file storage 
+  originalName  String
+  mimeType     String
+  size         Int
+   
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+
+ 
+  category   FileCategory? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String?
+
+  locations Location[]
+  jobs  Job[]
+  jobSchedules  JobSchedule[]
+  assets Asset[]
+  suppliers Supplier[]
+  people  Person[]
+
+
+}
+
+model JobSchedule {
+  id                  String    @id @default(uuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  summary               String
+  description           String?
+  nextDue           DateTime? @db.Date
+  statutoryCompliance   Boolean
+  recurrenceInterval    Int
+  recurrenceUnit        String 
+  noticeDays            Int
+  nextJobCreationDate   DateTime? @db.Date
+
+  expiresOn             DateTime? 
+  expiresAfter          Int?
+
+   
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+
+  location   Location? @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  locationId String?
+ 
+  category   JobScheduleCategory? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String?
+
+  jobCategory   JobCategory? @relation(fields: [jobCategoryId], references: [id], onDelete: Cascade)
+  jobCategoryId String?
+  
+  files File[]
+  assets  Asset[]
+  jobs  Job[]
+
+}
+
+// Information about the person shared between orgs
+// A user can access many accounts 
+// User has many people (profiles) - one for each org
+model User{
+  id                  String    @id @default(uuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  activeAccountId       String
+  firstName         String
+  lastName           String
+  mobile            String?
+  email            String @unique
+  jobTitle      String?
+  password  String
+
+  passwordSet DateTime? 
+  emailValidated  Boolean @default(false)
+  emailValidatedAt  DateTime?
+  emailValidationToken  String?
+  emailValidationTokenExpires DateTime?
+
+  passwordResetToken  String?
+  passwordResetTokenExpires DateTime?
+
+  accounts Account[]
+  people  Person[]
+
+}
+
+// Information about the user for the related org.
+model Person {
+  id                  String    @id @default(uuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  isAccountAdmin    Boolean @default(false)
+
+  user   User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String?
+    
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+
+  location   Location? @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  locationId String?
+
+  permissionGroup   PermissionGroup? @relation(fields: [permissionGroupId], references: [id], onDelete: Cascade)
+  permissionGroupId String?
+
+  createdJobs Job [] @relation("JobCreator") 
+  approvedJobs Job [] @relation("JobApprover") 
+  rejectedJobs Job [] @relation("JobRejector") 
+
+  createdAssignments Assignment [] @relation("AssignmentCreator") 
+
+  assignments  Assignment[] @relation("AssignedPerson")
+
+  skills SkillCategory[]
+  files File[]
+  
+
+}
+
+model PermissionGroup {
+  id                  String    @id @default(uuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  description         String 
+  people              Person[]
+  permissions         Permission[]
+
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+
+  @@unique([accountId, description]) // Prevent duplicate group descriptions per account
+}
+
+model Permission{
+  id                  String    @id @default(uuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  code        String             @unique // "canDeleteJob"
+  name        String             // "Delete Jobs" - for UI display
+  description String             // "Allows deletion of job records"
+  category    String             // "jobs", "users", "settings"
+  groups              PermissionGroup[]
+}
+
+// DATA CATEGORIES
+
+model LocationCategory {
+  id                  String    @id @default(uuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  description         String
+    
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+
+  locations  Location[]
+}
+
+model AssetCategory {
+  id                  String    @id @default(uuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  description         String
+    
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+
+  assets  Asset[]
+}
+
+model JobCategory {
+  id                  String    @id @default(uuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  description         String
+  
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+
+  jobs  Job[]
+  jobSchedules  JobSchedule[]
+}
+
+model SkillCategory {
+  id                  String    @id @default(uuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  description         String
+  
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+
+  suppliers  Supplier[]
+  peple     Person[]
+}
+
+model FileCategory {
+  id                  String    @id @default(uuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  description         String
+  
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+
+  files  File[]
+}
+
+model JobScheduleCategory {
+  id                  String    @id @default(uuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  description         String
+  
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+
+  jobSchedules  JobSchedule[]
+}
