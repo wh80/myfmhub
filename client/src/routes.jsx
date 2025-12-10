@@ -28,7 +28,10 @@ import PersonViewPage from "./features/people/pages/ViewPage";
 
 import ReportsIndexPage from "./features/reports/pages/IndexPage";
 import DashboardIndexPage from "./features/dashboards/pages/IndexPage";
-import SettingsIndexPage from "./features/settings/pages/IndexPage";
+
+import SettingsIndexPage from "./features/settings/pages/SettingsIndexPage";
+import DataImportPage from "./features/settings/pages/DataImportPage";
+import DataCategoriesPage from "./features/settings/pages/DataCategoriesPage";
 
 export default function AppRoutes() {
   return (
@@ -60,6 +63,11 @@ export default function AppRoutes() {
           <Route path="/dashboard" element={<DashboardIndexPage />} />
           <Route path="/reports" element={<ReportsIndexPage />} />
           <Route path="/settings" element={<SettingsIndexPage />} />
+          <Route
+            path="/settings/data-categories"
+            element={<DataCategoriesPage />}
+          />
+          <Route path="/settings/data-import" element={<DataImportPage />} />
         </Route>
 
         {/* Public Routes - No nav */}

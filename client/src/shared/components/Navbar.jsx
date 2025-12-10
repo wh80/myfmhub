@@ -1,5 +1,7 @@
 import { Menubar } from "primereact/menubar";
 import { Button } from "primereact/button";
+import { Menu } from "primereact/menu";
+import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../../features/auth/authSlice";
@@ -7,6 +9,7 @@ import { logout } from "../../features/auth/authSlice";
 const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const menuRef = useRef(null);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -61,8 +64,39 @@ const Navbar = () => {
     },
   ];
 
+  const userMenuItems = [
+    {
+      label: "My Profile",
+      icon: "pi pi-user",
+      command: () => navigate("/profile"),
+    },
+    {
+      label: "Change Password",
+      icon: "pi pi-key",
+      command: () => navigate("/change-password"),
+    },
+    {
+      separator: true,
+    },
+    {
+      label: "Logout",
+      icon: "pi pi-sign-out",
+      command: handleLogout,
+    },
+  ];
+
   const end = (
-    <Button label="Logout" icon="pi pi-sign-out" onClick={handleLogout} text />
+    <>
+      <Menu model={userMenuItems} popup ref={menuRef} />
+      <Button
+        icon="pi pi-user"
+        rounded
+        text
+        severity="secondary"
+        onClick={(e) => menuRef.current.toggle(e)}
+        aria-label="User menu"
+      />
+    </>
   );
 
   return <Menubar model={items} end={end} className="mb-4" />;

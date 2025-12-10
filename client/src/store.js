@@ -7,6 +7,7 @@ import { locationsApi } from "./features/locations/locationsApi";
 import { suppliersApi } from "./features/suppliers/suppliersApi";
 import { jobSchedulesApi } from "./features/jobSchedules/jobSchedulesApi";
 import { peopleApi } from "./features/people/peopleApi";
+import { dataCategoriesApi } from "./features/settings/dataCategoriesApi";
 
 import authReducer from "./features/auth/authSlice";
 
@@ -21,6 +22,7 @@ export const store = configureStore({
     [suppliersApi.reducerPath]: suppliersApi.reducer,
     [jobSchedulesApi.reducerPath]: jobSchedulesApi.reducer,
     [peopleApi.reducerPath]: peopleApi.reducer,
+    [dataCategoriesApi.reducerPath]: dataCategoriesApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -31,5 +33,6 @@ export const store = configureStore({
       .concat(locationsApi.middleware)
       .concat(suppliersApi.middleware)
       .concat(jobSchedulesApi.middleware)
-      .concat(peopleApi.middleware),
+      .concat(peopleApi.middleware)
+      .concat(dataCategoriesApi.middleware),
 });
