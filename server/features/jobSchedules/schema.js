@@ -20,6 +20,8 @@ export const jobScheduleSchema = z.object({
   }),
   noticeDays: z.coerce.number().int().min(0, "Notice days cannot be negative"),
   locationId: z.string().uuid("Invalid location selected"),
+  categoryId: z.string().nullable().optional(),
+  jobCategoryId: z.string().nullable().optional(),
 });
 
 export const createJobScheduleSchema = jobScheduleSchema;

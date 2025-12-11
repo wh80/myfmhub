@@ -12,7 +12,7 @@ const AssetsIndexPage = () => {
   const { data: assets, error, isLoading } = useGetAllAssetsQuery();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  
+  console.log(assets);
 
   const actionsBodyTemplate = (rowData) => {
     return (
@@ -51,6 +51,10 @@ const AssetsIndexPage = () => {
             body={(rowData) =>
               getMaterialisedPathAsString(rowData.location?.materialisedPath)
             }
+          />
+          <Column
+            header="Category"
+            body={(rowData) => rowData.category?.description}
           />
           <Column field="assetNumber" header="Asset Number" />
           <Column field="serialNumber" header="Serial Number" />

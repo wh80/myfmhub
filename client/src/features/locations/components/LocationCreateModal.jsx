@@ -1,14 +1,22 @@
 import { useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { useCreateLocationMutation } from "../locationsApi";
+import { useGetAllCategoriesQuery } from "../../settings/dataCategoriesApi";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 import { useToast } from "../../../hooks/useToast";
+import { Dropdown } from "primereact/dropdown";
 
 const LocationCreateModal = ({ showModal, closeModal, parentId }) => {
   const [createLocation, { isLoading, error }] = useCreateLocationMutation();
   const toast = useToast();
+
+  const {
+    data: categories,
+    error: categoriesError,
+    isLoading: categoriesLoading,
+  } = useGetAllCategoriesQuery("location-categories");
 
   const [form, setForm] = useState({
     description: "",
@@ -16,10 +24,23 @@ const LocationCreateModal = ({ showModal, closeModal, parentId }) => {
     telephone: "",
     email: "",
     parentId: parentId,
+    categoryId: undefined,
   });
 
   const updateField = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleClose = () => {
+    setForm({
+      description: "",
+      address: "",
+      telephone: "",
+      email: "",
+      categoryId: undefined,
+      locationId: undefined,
+    });
+    closeModal();
   };
 
   const handleSubmit = async (e) => {
@@ -27,17 +48,20 @@ const LocationCreateModal = ({ showModal, closeModal, parentId }) => {
     try {
       await createLocation(form).unwrap();
       toast.success("Location created successfully");
-      closeModal();
+      handleClose();
     } catch (err) {
       toast.error("Failed to create location");
       console.error("Failed to create Location:", err);
     }
   };
 
+  const dataLoading = categoriesLoading;
+  const dataError = categoriesError;
+
   return (
     <Dialog
       visible={showModal}
-      onHide={closeModal}
+      onHide={handleClose}
       header="Create Child Location"
       className="w-11 md:w-6 lg:w-4"
     >
@@ -50,6 +74,23 @@ const LocationCreateModal = ({ showModal, closeModal, parentId }) => {
             id="description"
             value={form.description}
             onChange={(e) => updateField("description", e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="categoryId" className="font-semibold block mb-1">
+            Category
+          </label>
+          <Dropdown
+            id="categoryId"
+            value={form.categoryId}
+            options={categories}
+            onChange={(e) => updateField("categoryId", e.value)}
+            optionLabel="description"
+            optionValue="id"
+            placeholder="Select a category"
+            className="w-full mt-2"
+            showClear
           />
         </div>
 

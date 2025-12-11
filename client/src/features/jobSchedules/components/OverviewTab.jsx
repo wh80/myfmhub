@@ -19,6 +19,7 @@ import {
 } from "../../../utils";
 import { useGetAllLocationsQuery } from "../../locations/locationsApi";
 import { PageLoadingState } from "../../../shared/components/PageLoadingState";
+import { useGetAllCategoriesQuery } from "../../settings/dataCategoriesApi";
 
 const JobScheduleOverviewTab = ({ schedule }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -37,12 +38,32 @@ const JobScheduleOverviewTab = ({ schedule }) => {
     skip: !isEditing,
   });
 
+  // Only load categories for select when editing
+  const {
+    data: categories,
+    error: categoriesError,
+    isLoading: categoriesLoading,
+  } = useGetAllCategoriesQuery("jobschedule-categories", {
+    skip: !isEditing,
+  });
+
+  // Only load categories for select when editing
+  const {
+    data: jobCategories,
+    error: jobCategoriesError,
+    isLoading: jobCategoriesLoading,
+  } = useGetAllCategoriesQuery("job-categories", {
+    skip: !isEditing,
+  });
+
   const toast = useToast();
 
   const [form, setForm] = useState({
     summary: schedule.summary || "",
     description: schedule.description || "",
     locationId: schedule.locationId || "",
+    categoryId: schedule.categoryId || "",
+    jobCategoryId: schedule.jobCategoryId || "",
     nextDue: schedule.nextDue || "",
     noticeDays: schedule.noticeDays || "",
     recurrenceInterval: schedule.recurrenceInterval || "",
@@ -60,6 +81,8 @@ const JobScheduleOverviewTab = ({ schedule }) => {
       summary: schedule.summary || "",
       description: schedule.description || "",
       locationId: schedule.locationId || "",
+      categoryId: schedule.categoryId || "",
+      jobCategoryId: schedule.jobCategoryId || "",
       nextDue: schedule.nextDue || "",
       noticeDays: schedule.noticeDays || "",
       recurrenceInterval: schedule.recurrenceInterval || "",
@@ -76,6 +99,8 @@ const JobScheduleOverviewTab = ({ schedule }) => {
       summary: schedule.summary || "",
       description: schedule.description || "",
       locationId: schedule.locationId || "",
+      categoryId: schedule.categoryId || "",
+      jobCategoryId: schedule.jobCategoryId || "",
       nextDue: schedule.nextDue || "",
       noticeDays: schedule.noticeDays || "",
       recurrenceInterval: schedule.recurrenceInterval || "",
@@ -119,9 +144,9 @@ const JobScheduleOverviewTab = ({ schedule }) => {
     { label: "Years", value: "years" },
   ];
 
-  const dataLoading = locationsLoading;
-  const dataError = locationsError;
-
+  const dataLoading =
+    locationsLoading || categoriesLoading || jobCategoriesLoading;
+  const dataError = locationsError || categoriesError || jobCategoriesError;
   return (
     <div>
       {/* Top bar with edit & delete buttons */}
@@ -237,6 +262,48 @@ const JobScheduleOverviewTab = ({ schedule }) => {
                 schedule.location.materialisedPath
               ) || "—"}
             </p>
+          )}
+        </div>
+
+        <div>
+          <label htmlFor="categoryId" className="font-semibold block mb-1">
+            Category
+          </label>
+          {isEditing && !isLoading ? (
+            <Dropdown
+              id="categoryId"
+              value={form.categoryId}
+              options={categories}
+              onChange={(e) => updateField("categoryId", e.value)}
+              optionLabel="description"
+              optionValue="id"
+              placeholder="Select a job category"
+              className="w-full mt-2"
+              showClear
+            />
+          ) : (
+            <p className="m-0">{schedule.category?.description || "—"}</p>
+          )}
+        </div>
+
+        <div>
+          <label htmlFor="jobCategory" className="font-semibold block mb-1">
+            Job Category
+          </label>
+          {isEditing && !isLoading ? (
+            <Dropdown
+              id="jobCategory"
+              value={form.jobCategoryId}
+              options={jobCategories}
+              onChange={(e) => updateField("jobCategoryId", e.value)}
+              optionLabel="description"
+              optionValue="id"
+              placeholder="Select a category"
+              className="w-full mt-2"
+              showClear
+            />
+          ) : (
+            <p className="m-0">{schedule.jobCategory?.description || "—"}</p>
           )}
         </div>
 

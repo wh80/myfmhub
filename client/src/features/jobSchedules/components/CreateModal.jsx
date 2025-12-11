@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { useCreateJobScheduleMutation } from "../jobSchedulesApi";
 import { useGetAllLocationsQuery } from "../../locations/locationsApi";
+import { useGetAllCategoriesQuery } from "../../settings/dataCategoriesApi";
 import { PageLoadingState } from "../../../shared/components/PageLoadingState";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
@@ -26,6 +27,18 @@ const JobScheduleCreateModal = ({
     isLoading: locationsLoading,
   } = useGetAllLocationsQuery();
 
+  const {
+    data: categories,
+    error: categoriesError,
+    isLoading: categoriesLoading,
+  } = useGetAllCategoriesQuery("jobschedule-categories");
+
+  const {
+    data: jobCategories,
+    error: jobCategoriesError,
+    isLoading: jobCategoriesLoading,
+  } = useGetAllCategoriesQuery("job-categories");
+
   const toast = useToast();
 
   const [form, setForm] = useState({
@@ -37,6 +50,8 @@ const JobScheduleCreateModal = ({
     noticeDays: null,
     recurrenceUnit: null,
     recurrenceInterval: null,
+    categoryId: undefined,
+    jobCategoryId: undefined,
   });
 
   const [formErrors, setFormErrors] = useState({});
@@ -55,6 +70,8 @@ const JobScheduleCreateModal = ({
       noticeDays: null,
       recurrenceUnit: null,
       recurrenceInterval: null,
+      categoryId: undefined,
+      jobCategoryId: undefined,
     });
     closeModal();
   };
@@ -85,8 +102,9 @@ const JobScheduleCreateModal = ({
     { label: "Years", value: "years" },
   ];
 
-  const dataLoading = locationsLoading;
-  const dataError = locationsError;
+  const dataLoading =
+    locationsLoading || categoriesLoading || jobCategoriesLoading;
+  const dataError = locationsError || categoriesError || jobCategoriesError;
 
   return (
     <Dialog
@@ -145,6 +163,40 @@ const JobScheduleCreateModal = ({
             {formErrors.locationId && (
               <small className="p-error">{formErrors.locationId}</small>
             )}
+          </div>
+
+          <div>
+            <label htmlFor="categoryId" className="font-semibold block mb-1">
+              Category
+            </label>
+            <Dropdown
+              id="categoryId"
+              value={form.categoryId}
+              options={categories}
+              onChange={(e) => updateField("categoryId", e.value)}
+              optionLabel="description"
+              optionValue="id"
+              placeholder="Select a category"
+              className="w-full mt-2"
+              showClear
+            />
+          </div>
+
+          <div>
+            <label htmlFor="jobCategoryId" className="font-semibold block mb-1">
+              Job Category
+            </label>
+            <Dropdown
+              id="jobCategoryId"
+              value={form.jobCategoryId}
+              options={jobCategories}
+              onChange={(e) => updateField("jobCategoryId", e.value)}
+              optionLabel="description"
+              optionValue="id"
+              placeholder="Select a job category"
+              className="w-full mt-2"
+              showClear
+            />
           </div>
 
           <div className="flex gap-3">

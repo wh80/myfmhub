@@ -14,6 +14,8 @@ import {
 const JobSchedulesIndexPage = () => {
   const { data: schedules, error, isLoading } = useGetAllJobSchedulesQuery();
 
+  console.log(schedules);
+
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const actionsBodyTemplate = (rowData) => {
@@ -54,6 +56,16 @@ const JobSchedulesIndexPage = () => {
             body={(rowData) =>
               getMaterialisedPathAsString(rowData.location?.materialisedPath)
             }
+          />
+
+          <Column
+            header="Category"
+            body={(rowData) => rowData.category?.description}
+          />
+
+          <Column
+            header="Job Category"
+            body={(rowData) => rowData.jobCategory?.description}
           />
           <Column
             header="Next Due"

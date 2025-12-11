@@ -8,12 +8,24 @@ import {
 } from "../locationsApi";
 import { useToast } from "../../../hooks/useToast";
 import { useDeleteConfirm } from "../../../hooks/useDeleteConfirm";
+import { Dropdown } from "primereact/dropdown";
+import { useGetAllCategoriesQuery } from "../../settings/dataCategoriesApi";
+import { PageLoadingState } from "../../../shared/components/PageLoadingState";
 
 const LocationOverviewTab = ({ location }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [updateLocation, { isLoading }] = useUpdateLocationMutation();
   const [deleteLocation] = useDeleteLocationMutation();
   const confirmDelete = useDeleteConfirm();
+
+  // Only load categories for select when editing
+  const {
+    data: categories,
+    error: categoriesError,
+    isLoading: categoriesLoading,
+  } = useGetAllCategoriesQuery("location-categories", {
+    skip: !isEditing,
+  });
 
   const toast = useToast();
 
@@ -22,6 +34,7 @@ const LocationOverviewTab = ({ location }) => {
     address: location.address || "",
     telephone: location.telephone || "",
     email: location.email || "",
+    categoryId: location.categoryId || "",
   });
 
   const updateField = (field, value) => {
@@ -35,6 +48,7 @@ const LocationOverviewTab = ({ location }) => {
       address: location.address || "",
       telephone: location.telephone || "",
       email: location.email || "",
+      categoryId: location.categoryId || "",
     });
     setIsEditing(true);
   };
@@ -47,6 +61,7 @@ const LocationOverviewTab = ({ location }) => {
       address: location.address || "",
       telephone: location.telephone || "",
       email: location.email || "",
+      categoryId: location.categoryId || "",
     });
   };
 
@@ -77,6 +92,9 @@ const LocationOverviewTab = ({ location }) => {
       // Cancelled
     }
   };
+
+  const dataLoading = categoriesLoading;
+  const dataError = categoriesError;
 
   return (
     <div>
@@ -132,6 +150,13 @@ const LocationOverviewTab = ({ location }) => {
         )}
       </div>
 
+      {/* Loading state for loading locations on edit */}
+      <PageLoadingState
+        isLoading={dataLoading}
+        error={dataError}
+        errorMessage={"Error loading required data."}
+      />
+
       {/* Content */}
       <form
         onSubmit={handleSubmit}
@@ -149,6 +174,27 @@ const LocationOverviewTab = ({ location }) => {
             />
           ) : (
             <p className="m-0">{location.description || "—"}</p>
+          )}
+        </div>
+
+        <div>
+          <label htmlFor="categoryId" className="font-semibold block mb-1">
+            Category
+          </label>
+          {isEditing && !isLoading ? (
+            <Dropdown
+              id="categoryId"
+              value={form.categoryId}
+              options={categories}
+              onChange={(e) => updateField("categoryId", e.value)}
+              optionLabel="description"
+              optionValue="id"
+              placeholder="Select a category"
+              className="w-full mt-2"
+              showClear
+            />
+          ) : (
+            <p className="m-0">{location.category?.description || "—"}</p>
           )}
         </div>
 

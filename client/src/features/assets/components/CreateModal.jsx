@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { useCreateAssetMutation } from "../assetsApi";
 import { useGetAllLocationsQuery } from "../../locations/locationsApi";
+import { useGetAllCategoriesQuery } from "../../settings/dataCategoriesApi";
 import { PageLoadingState } from "../../../shared/components/PageLoadingState";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { TreeSelect } from "primereact/treeselect";
 import { useToast } from "../../../hooks/useToast";
+import { Dropdown } from "primereact/dropdown";
 
 const AssetCreateModal = ({
   showModal,
@@ -14,11 +16,18 @@ const AssetCreateModal = ({
   locationId = undefined,
 }) => {
   const [createAsset, { isLoading, error }] = useCreateAssetMutation();
+
   const {
     data: locations,
     error: locationsError,
     isLoading: locationsLoading,
   } = useGetAllLocationsQuery();
+
+  const {
+    data: categories,
+    error: categoriesError,
+    isLoading: categoriesLoading,
+  } = useGetAllCategoriesQuery("asset-categories");
 
   const toast = useToast();
 
@@ -28,6 +37,7 @@ const AssetCreateModal = ({
     telephone: "",
     email: "",
     locationId: locationId,
+    categoryId: undefined,
   });
 
   const [formErrors, setFormErrors] = useState({});
@@ -39,8 +49,11 @@ const AssetCreateModal = ({
   const handleClose = () => {
     setForm({
       description: "",
-
-      locationId: locationId,
+      address: "",
+      telephone: "",
+      email: "",
+      categoryId: undefined,
+      locationId: undefined,
     });
     closeModal();
   };
@@ -63,8 +76,8 @@ const AssetCreateModal = ({
     }
   };
 
-  const dataLoading = locationsLoading;
-  const dataError = locationsError;
+  const dataLoading = locationsLoading || categoriesLoading;
+  const dataError = locationsError || categoriesError;
 
   return (
     <Dialog
@@ -111,6 +124,23 @@ const AssetCreateModal = ({
             {formErrors.locationId && (
               <small className="p-error">{formErrors.locationId}</small>
             )}
+          </div>
+
+          <div>
+            <label htmlFor="categoryId" className="font-semibold block mb-1">
+              Category
+            </label>
+            <Dropdown
+              id="categoryId"
+              value={form.categoryId}
+              options={categories}
+              onChange={(e) => updateField("categoryId", e.value)}
+              optionLabel="description"
+              optionValue="id"
+              placeholder="Select a category"
+              className="w-full mt-2"
+              showClear
+            />
           </div>
 
           <div className="grid">

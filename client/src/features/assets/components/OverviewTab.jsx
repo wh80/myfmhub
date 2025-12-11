@@ -7,7 +7,9 @@ import { useUpdateAssetMutation, useDeleteAssetMutation } from "../assetsApi";
 import { useToast } from "../../../hooks/useToast";
 import { useDeleteConfirm } from "../../../hooks/useDeleteConfirm";
 import { useGetAllLocationsQuery } from "../../locations/locationsApi";
+import { useGetAllCategoriesQuery } from "../../settings/dataCategoriesApi";
 import { PageLoadingState } from "../../../shared/components/PageLoadingState";
+import { Dropdown } from "primereact/dropdown";
 
 const AssetOverviewTab = ({ asset }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -24,11 +26,21 @@ const AssetOverviewTab = ({ asset }) => {
     skip: !isEditing,
   });
 
+  // Only load categories for select when editing
+  const {
+    data: categories,
+    error: categoriesError,
+    isLoading: categoriesLoading,
+  } = useGetAllCategoriesQuery("asset-categories", {
+    skip: !isEditing,
+  });
+
   const toast = useToast();
 
   const [form, setForm] = useState({
     description: asset.description || "",
     locationId: asset.locationId || "",
+    categoryId: asset.categoryId || "",
     assetNumber: asset.assetNumber || "",
     make: asset.make || "",
     model: asset.model || "",
@@ -44,6 +56,7 @@ const AssetOverviewTab = ({ asset }) => {
     setForm({
       description: asset.description || "",
       locationId: asset.locationId || "",
+      categoryId: asset.categoryId || "",
       assetNumber: asset.assetNumber || "",
       make: asset.make || "",
       model: asset.model || "",
@@ -58,6 +71,7 @@ const AssetOverviewTab = ({ asset }) => {
     setForm({
       description: asset.description || "",
       locationId: asset.locationId || "",
+      categoryId: asset.categoryId || "",
       assetNumber: asset.assetNumber || "",
       make: asset.make || "",
       model: asset.model || "",
@@ -92,8 +106,8 @@ const AssetOverviewTab = ({ asset }) => {
     }
   };
 
-  const dataLoading = locationsLoading;
-  const dataError = locationsError;
+  const dataLoading = locationsLoading || categoriesLoading;
+  const dataError = locationsError || categoriesError;
 
   return (
     <div>
@@ -175,7 +189,7 @@ const AssetOverviewTab = ({ asset }) => {
         </div>
 
         <div>
-          <label htmlFor="description" className="font-semibold block mb-1">
+          <label htmlFor="locationId" className="font-semibold block mb-1">
             Location
           </label>
           {isEditing && !isLoading ? (
@@ -193,6 +207,27 @@ const AssetOverviewTab = ({ asset }) => {
               {getMaterialisedPathAsString(asset.location.materialisedPath) ||
                 "—"}
             </p>
+          )}
+        </div>
+
+        <div>
+          <label htmlFor="categoryId" className="font-semibold block mb-1">
+            Category
+          </label>
+          {isEditing && !isLoading ? (
+            <Dropdown
+              id="categoryId"
+              value={form.categoryId}
+              options={categories}
+              onChange={(e) => updateField("categoryId", e.value)}
+              optionLabel="description"
+              optionValue="id"
+              placeholder="Select a category"
+              className="w-full mt-2"
+              showClear
+            />
+          ) : (
+            <p className="m-0">{asset.category?.description || "—"}</p>
           )}
         </div>
 

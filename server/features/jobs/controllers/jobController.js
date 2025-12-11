@@ -12,13 +12,14 @@ export async function createJob(req, res) {
     return res.status(400).json({ error: validated.error });
   }
 
-  const { summary, description, locationId } = validated.data;
+  const { summary, description, locationId, categoryId } = validated.data;
 
   try {
     const created = await prisma.job.create({
       data: {
         summary,
         description,
+        category: categoryId ? { connect: { id: categoryId } } : undefined,
         location: { connect: { id: locationId } },
         account: { connect: { id: accountId } },
       },
@@ -53,6 +54,7 @@ export async function getAllJobs(req, res) {
       where: whereQuery,
       include: {
         location: { select: { materialisedPath: true } },
+        category: { select: { description: true } },
       },
     });
 
@@ -72,6 +74,7 @@ export async function getJobbyId(req, res) {
       where: { id, accountId },
       include: {
         location: { select: { materialisedPath: true } },
+        category: { select: { description: true } },
       },
     });
 
@@ -98,7 +101,7 @@ export async function updateJob(req, res) {
     return res.status(400).json({ error: validated.error });
   }
 
-  const { summary, description, locationId } = validated.data;
+  const { summary, description, locationId, categoryId } = validated.data;
 
   try {
     const updated = await prisma.job.update({

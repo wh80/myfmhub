@@ -12,8 +12,15 @@ export async function createAsset(req, res) {
     return res.status(400).json({ error: validated.error });
   }
 
-  const { description, locationId, assetNumber, make, model, serialNumber } =
-    validated.data;
+  const {
+    description,
+    locationId,
+    categoryId,
+    assetNumber,
+    make,
+    model,
+    serialNumber,
+  } = validated.data;
 
   try {
     const created = await prisma.asset.create({
@@ -23,6 +30,7 @@ export async function createAsset(req, res) {
         make,
         model,
         serialNumber,
+        category: categoryId ? { connect: { id: categoryId } } : undefined,
         location: { connect: { id: locationId } },
         account: { connect: { id: accountId } },
       },
@@ -57,6 +65,7 @@ export async function getAllAssets(req, res) {
       where: whereQuery,
       include: {
         location: { select: { materialisedPath: true } },
+        category: { select: { description: true } },
       },
     });
 
@@ -78,6 +87,7 @@ export async function getAssetbyId(req, res) {
         location: {
           select: { materialisedPath: true },
         },
+        category: { select: { description: true } },
       },
     });
 
@@ -104,8 +114,15 @@ export async function updateAsset(req, res) {
     return res.status(400).json({ error: validated.error });
   }
 
-  const { description, locationId, make, model, serialNumber, assetNumber } =
-    validated.data;
+  const {
+    description,
+    locationId,
+    categoryId,
+    make,
+    model,
+    serialNumber,
+    assetNumber,
+  } = validated.data;
 
   try {
     const updated = await prisma.asset.update({
@@ -116,6 +133,9 @@ export async function updateAsset(req, res) {
         model,
         serialNumber,
         assetNumber,
+        category: categoryId
+          ? { connect: { id: categoryId } }
+          : { disconnect: true },
         location: {
           connect: { id: locationId },
         },

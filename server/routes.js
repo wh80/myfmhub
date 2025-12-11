@@ -9,6 +9,7 @@ import jobScheduleRoutes from "./features/jobSchedules/jobScheduleRoutes.js";
 import personRoutes from "./features/people/personRoutes.js";
 import fileRoutes from "./features/files/fileRoutes.js";
 import supplierRoutes from "./features/suppliers/supplierRoutes.js";
+import settingRoutes from "./features/settings/settingRoutes.js";
 
 const router = Router();
 
@@ -21,5 +22,6 @@ router.use("/job-schedules", jobScheduleRoutes);
 router.use("/people", personRoutes);
 router.use("/files", fileRoutes);
 router.use("/suppliers", supplierRoutes);
+router.use("/settings", settingRoutes);
 
 export default router;

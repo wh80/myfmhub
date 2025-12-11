@@ -20,6 +20,7 @@ export async function createSupplier(req, res) {
         address,
         telephone,
         email,
+
         account: { connect: { id: accountId } },
       },
     });

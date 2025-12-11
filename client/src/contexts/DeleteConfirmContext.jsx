@@ -16,13 +16,16 @@ export default function DeleteConfirmProvider({ children }) {
     header = "Confirm Delete",
     deleteMutation,
     itemId,
+    deleteParams, // Allows for adding additional params to API call
     redirectUrl,
     onSuccess,
   }) => {
     return new Promise((resolve, reject) => {
       const handleAccept = async () => {
         try {
-          await deleteMutation(itemId).unwrap();
+          // If deleteParams is provided, use it; otherwise fall back to just itemId
+          const mutationArg = deleteParams || itemId;
+          await deleteMutation(mutationArg).unwrap();
           toast.success("Successfully deleted");
 
           if (onSuccess) {
@@ -72,5 +75,4 @@ export default function DeleteConfirmProvider({ children }) {
   );
 }
 
-// Export this so useDeleteConfirm hook can access it
 export { DeleteConfirmContext };

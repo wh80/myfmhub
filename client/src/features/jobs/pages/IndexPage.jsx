@@ -53,6 +53,11 @@ const JobsIndexPage = () => {
           />
 
           <Column
+            header="Category"
+            body={(rowData) => rowData.category?.description}
+          />
+
+          <Column
             header="Actions"
             body={actionsBodyTemplate}
             style={{ width: "5rem" }}

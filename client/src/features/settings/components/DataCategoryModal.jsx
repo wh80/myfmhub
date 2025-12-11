@@ -23,6 +23,9 @@ const DataCategoryModal = ({ showModal, closeModal, categoryType }) => {
     try {
       await createCategory({ categoryType, data: form }).unwrap();
       toast.success("Category created successfully");
+      setForm({
+        description: "",
+      });
       closeModal();
     } catch (err) {
       toast.error("Failed to create category");

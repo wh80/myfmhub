@@ -16,7 +16,7 @@ export async function createLocation(req, res) {
     return res.status(400).json({ error: validated.error });
   }
 
-  const { description, parentId, address, telephone, categoryId } =
+  const { description, parentId, locationId, address, telephone, categoryId } =
     validated.data;
 
   // Duplicate description check
@@ -95,6 +95,9 @@ export async function getAllLocations(req, res) {
   try {
     const locations = await prisma.location.findMany({
       where: whereQuery,
+      include: {
+        category: { select: { description: true } },
+      },
     });
 
     // Convert locations into a tree
@@ -114,6 +117,9 @@ export async function getLocationbyId(req, res) {
   try {
     const location = await prisma.location.findUnique({
       where: { id, accountId },
+      include: {
+        category: { select: { description: true } },
+      },
     });
 
     if (!location) {

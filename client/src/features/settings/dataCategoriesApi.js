@@ -9,7 +9,7 @@ export const dataCategoriesApi = createApi({
   endpoints: (builder) => ({
     createCategory: builder.mutation({
       query: ({ data, categoryType }) => ({
-        url: `/categories/${categoryType}`,
+        url: `/settings/categories/${categoryType}`,
         method: "POST",
         body: data,
       }),
@@ -18,20 +18,21 @@ export const dataCategoriesApi = createApi({
       ],
     }),
     getAllCategories: builder.query({
-      query: (categoryType) => `/categories/${categoryType}`,
+      query: (categoryType) => `/settings/categories/${categoryType}`,
       providesTags: (result, error, categoryType) => [
         { type: "Category", categoryType },
       ],
     }),
     getCategoryById: builder.query({
-      query: ({ id, categoryType }) => `/categories/${categoryType}/${id}`,
+      query: ({ id, categoryType }) =>
+        `/settings/categories/${categoryType}/${id}`,
       providesTags: (result, error, { id, categoryType }) => [
         { type: "Category", id, categoryType },
       ],
     }),
     updateCategory: builder.mutation({
       query: ({ id, categoryType, data }) => ({
-        url: `/categories/${categoryType}/${id}`,
+        url: `/settings/categories/${categoryType}/${id}`,
         method: "PUT",
         body: data,
       }),
@@ -42,7 +43,7 @@ export const dataCategoriesApi = createApi({
     }),
     deleteCategory: builder.mutation({
       query: ({ categoryType, id }) => ({
-        url: `/categories/${categoryType}/${id}`,
+        url: `/settings/categories/${categoryType}/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: (result, error, { categoryType, id }) => [

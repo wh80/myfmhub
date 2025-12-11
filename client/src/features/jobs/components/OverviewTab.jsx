@@ -8,7 +8,9 @@ import { useToast } from "../../../hooks/useToast";
 import { useDeleteConfirm } from "../../../hooks/useDeleteConfirm";
 import { getMaterialisedPathAsString } from "../../../utils";
 import { useGetAllLocationsQuery } from "../../locations/locationsApi";
+import { useGetAllCategoriesQuery } from "../../settings/dataCategoriesApi";
 import { PageLoadingState } from "../../../shared/components/PageLoadingState";
+import { Dropdown } from "primereact/dropdown";
 
 const JobOverviewTab = ({ job }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -25,12 +27,22 @@ const JobOverviewTab = ({ job }) => {
     skip: !isEditing,
   });
 
+  // Only load categories for select when editing
+  const {
+    data: categories,
+    error: categoriesError,
+    isLoading: categoriesLoading,
+  } = useGetAllCategoriesQuery("job-categories", {
+    skip: !isEditing,
+  });
+
   const toast = useToast();
 
   const [form, setForm] = useState({
     summary: job.summary || "",
     description: job.description || "",
     locationId: job.locationId || "",
+    categoryId: job.categoryId || "",
   });
 
   const updateField = (field, value) => {
@@ -43,6 +55,7 @@ const JobOverviewTab = ({ job }) => {
       summary: job.summary || "",
       description: job.description || "",
       locationId: job.locationId || "",
+      categoryId: job.categoryId || "",
     });
     setIsEditing(true);
   };
@@ -54,6 +67,7 @@ const JobOverviewTab = ({ job }) => {
       summary: job.summary || "",
       description: job.description || "",
       locationId: job.locationId || "",
+      categoryId: job.categoryId || "",
     });
   };
 
@@ -84,8 +98,8 @@ const JobOverviewTab = ({ job }) => {
     }
   };
 
-  const dataLoading = locationsLoading;
-  const dataError = locationsError;
+  const dataLoading = locationsLoading || categoriesLoading;
+  const dataError = locationsError || categoriesError;
 
   return (
     <div>
@@ -201,6 +215,27 @@ const JobOverviewTab = ({ job }) => {
               {getMaterialisedPathAsString(job.location.materialisedPath) ||
                 "—"}
             </p>
+          )}
+        </div>
+
+        <div>
+          <label htmlFor="categoryId" className="font-semibold block mb-1">
+            Category
+          </label>
+          {isEditing && !isLoading ? (
+            <Dropdown
+              id="categoryId"
+              value={form.categoryId}
+              options={categories}
+              onChange={(e) => updateField("categoryId", e.value)}
+              optionLabel="description"
+              optionValue="id"
+              placeholder="Select a category"
+              className="w-full mt-2"
+              showClear
+            />
+          ) : (
+            <p className="m-0">{job.category?.description || "—"}</p>
           )}
         </div>
       </form>

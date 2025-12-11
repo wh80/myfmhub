@@ -86,6 +86,8 @@ export async function getAllJobSchedules(req, res) {
         location: {
           select: { materialisedPath: true },
         },
+        category: { select: { description: true } },
+        jobCategory: { select: { description: true } },
       },
     });
 
@@ -103,7 +105,11 @@ export async function getJobSchedulebyId(req, res) {
   try {
     const jobSchedule = await prisma.jobSchedule.findUnique({
       where: { id, accountId },
-      include: { location: { select: { materialisedPath: true } } },
+      include: {
+        location: { select: { materialisedPath: true } },
+        category: { select: { description: true } },
+        jobCategory: { select: { description: true } },
+      },
     });
 
     if (!jobSchedule) {

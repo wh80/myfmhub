@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { useCreateJobMutation } from "../jobsApi";
 import { useGetAllLocationsQuery } from "../../locations/locationsApi";
+import { useGetAllCategoriesQuery } from "../../settings/dataCategoriesApi";
 import { PageLoadingState } from "../../../shared/components/PageLoadingState";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 import { TreeSelect } from "primereact/treeselect";
 import { useToast } from "../../../hooks/useToast";
+import { Dropdown } from "primereact/dropdown";
 
 const JobCreateModal = ({ showModal, closeModal, locationId = undefined }) => {
   const [createJob, { isLoading, error }] = useCreateJobMutation();
@@ -18,12 +20,19 @@ const JobCreateModal = ({ showModal, closeModal, locationId = undefined }) => {
     isLoading: locationsLoading,
   } = useGetAllLocationsQuery();
 
+  const {
+    data: categories,
+    error: categoriesError,
+    isLoading: categoriesLoading,
+  } = useGetAllCategoriesQuery("job-categories");
+
   const toast = useToast();
 
   const [form, setForm] = useState({
     summary: "",
     description: "",
     locationId: locationId,
+    categoryId: undefined,
   });
 
   const [formErrors, setFormErrors] = useState({});
@@ -34,8 +43,10 @@ const JobCreateModal = ({ showModal, closeModal, locationId = undefined }) => {
 
   const handleClose = () => {
     setForm({
+      summary: "",
       description: "",
       locationId: locationId,
+      categoryId: undefined,
     });
     closeModal();
   };
@@ -58,8 +69,8 @@ const JobCreateModal = ({ showModal, closeModal, locationId = undefined }) => {
     }
   };
 
-  const dataLoading = locationsLoading;
-  const dataError = locationsError;
+  const dataLoading = locationsLoading || categoriesLoading;
+  const dataError = locationsError || categoriesError;
 
   return (
     <Dialog
@@ -118,6 +129,23 @@ const JobCreateModal = ({ showModal, closeModal, locationId = undefined }) => {
             {formErrors.locationId && (
               <small className="p-error">{formErrors.locationId}</small>
             )}
+          </div>
+
+          <div>
+            <label htmlFor="categoryId" className="font-semibold block mb-1">
+              Category
+            </label>
+            <Dropdown
+              id="categoryId"
+              value={form.categoryId}
+              options={categories}
+              onChange={(e) => updateField("categoryId", e.value)}
+              optionLabel="description"
+              optionValue="id"
+              placeholder="Select a category"
+              className="w-full mt-2"
+              showClear
+            />
           </div>
 
           <Button
