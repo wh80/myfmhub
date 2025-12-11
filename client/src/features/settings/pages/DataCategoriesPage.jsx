@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
-import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+
 import { PageLoadingState } from "../../../shared/components/PageLoadingState";
 import DataCategoryModal from "../components/DataCategoryModal";
 import {
@@ -88,7 +88,6 @@ const DataCategoriesPage = () => {
 
   return (
     <div className="p-4">
-      <ConfirmDialog />
       <h1 className="text-3xl font-extrabold mb-4">Data Categories</h1>
 
       <PageLoadingState

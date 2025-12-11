@@ -1,5 +1,5 @@
 [] Job Workflow / Assignments
-[] Categories
+[X] Categories
 [] Files
 [] Data Imports
 [] User Permissions
