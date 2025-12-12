@@ -78,7 +78,7 @@ const LocationsIndexPage = () => {
             <div className="col-12 lg:col-9">
               <LocationViewPanel
                 locationId={selectedLocationId}
-                onClose={() => setSelectedLocationId(null)}
+                closeViewPanel={() => setSelectedLocationId(null)}
               />
             </div>
           )}

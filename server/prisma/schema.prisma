@@ -58,6 +58,7 @@ model Location {
   description             String
   address         String?
   telephone         String?
+  email             String?
 
   account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId String

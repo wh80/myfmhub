@@ -8,7 +8,7 @@ import LocationJobsTab from "./LocationJobsTab";
 import LocationJobSchedulesTab from "./LocationJobSchedulesTab";
 import LocationPeopleTab from "./LocationPeopleTab";
 
-const LocationViewPanel = ({ locationId }) => {
+const LocationViewPanel = ({ locationId, closeViewPanel }) => {
   const {
     data: location,
     error,
@@ -26,7 +26,10 @@ const LocationViewPanel = ({ locationId }) => {
 
       <TabView>
         <TabPanel header="Overview">
-          <LocationOverviewTab location={location} />
+          <LocationOverviewTab
+            location={location}
+            closeViewPanel={closeViewPanel}
+          />
         </TabPanel>
 
         <TabPanel header="Assets">

@@ -17,7 +17,7 @@ export default function DeleteConfirmProvider({ children }) {
     deleteMutation,
     itemId,
     deleteParams, // Allows for adding additional params to API call
-    redirectUrl,
+    redirectUrl = undefined,
     onSuccess,
   }) => {
     return new Promise((resolve, reject) => {

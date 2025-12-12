@@ -1,4 +1,4 @@
-import prisma from "../config/prisma.js";
+import prisma from "../../config/prisma.js";
 
 /**
  * Updates the full ancestral path (materialized tree) for a given location.
@@ -120,4 +120,38 @@ export function buildLocationTree(locations) {
   });
 
   return tree;
+}
+
+/**
+ * Finds a location by matching against materialisedPath
+ * CSV:  ['site 1', 'Main Building']
+    Path: [{root}, {site 1}, {Main Building}]
+              ↑        ↑         ↑
+           index 0  index 1   index 2
+            (skip)  (match 0) (match 1)
+
+ */
+export function findLocationByMaterialisedPath(existingLocations, levels) {
+  if (levels.length === 0) {
+    // No levels provided = looking for root
+    return (
+      existingLocations.find((loc) => loc.materialisedPath?.length === 1) ||
+      null
+    );
+  }
+
+  return (
+    existingLocations.find((loc) => {
+      const path = loc.materialisedPath || [];
+
+      // Path = root + provided levels, so length should be levels.length + 1
+      if (path.length !== levels.length + 1) return false;
+
+      // Compare levels against path starting from index 1 (skip root at index 0)
+      return levels.every(
+        (desc, idx) =>
+          path[idx + 1]?.description?.toLowerCase() === desc.toLowerCase()
+      );
+    }) || null
+  );
 }

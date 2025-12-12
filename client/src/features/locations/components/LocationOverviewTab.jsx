@@ -12,7 +12,7 @@ import { Dropdown } from "primereact/dropdown";
 import { useGetAllCategoriesQuery } from "../../settings/dataCategoriesApi";
 import { PageLoadingState } from "../../../shared/components/PageLoadingState";
 
-const LocationOverviewTab = ({ location }) => {
+const LocationOverviewTab = ({ location, closeViewPanel }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [updateLocation, { isLoading }] = useUpdateLocationMutation();
   const [deleteLocation] = useDeleteLocationMutation();
@@ -86,7 +86,7 @@ const LocationOverviewTab = ({ location }) => {
         header: "Delete Location",
         deleteMutation: deleteLocation,
         itemId: location.id,
-        redirectUrl: "/locations",
+        onSuccess: closeViewPanel,
       });
     } catch (err) {
       // Cancelled

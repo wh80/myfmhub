@@ -3,7 +3,7 @@ import { createLocationSchema, updateLocationSchema } from "../schema.js";
 import {
   buildLocationTree,
   getDescendantLocationIds,
-} from "../../../utils/locationUtils.js";
+} from "../locationUtils.js";
 
 export async function createLocation(req, res) {
   const requestData = req.body;
@@ -98,6 +98,7 @@ export async function getAllLocations(req, res) {
       include: {
         category: { select: { description: true } },
       },
+      orderBy: { description: "asc" },
     });
 
     // Convert locations into a tree

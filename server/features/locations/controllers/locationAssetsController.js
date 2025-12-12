@@ -1,5 +1,5 @@
 import prisma from "../../../config/prisma.js";
-import { getDescendantLocationIds } from "../../../utils/locationUtils.js";
+import { getDescendantLocationIds } from "../locationUtils.js";
 
 export async function getAssetsForLocation(req, res) {
   const { id } = req.params;
