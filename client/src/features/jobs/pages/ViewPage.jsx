@@ -18,7 +18,7 @@ const JobViewPage = () => {
 
   return (
     <>
-      <PageTitle title={job.summary} icon="pi pi-briefcase" />
+      <PageTitle title={job.summary} icon="pi pi-clipboard" />
 
       <TabView>
         <TabPanel header="Overview">

@@ -34,7 +34,7 @@ const Navbar = () => {
     },
     {
       label: "Jobs",
-      icon: "pi pi-briefcase",
+      icon: "pi pi-clipboard",
       command: () => navigate("/jobs"),
     },
     {
@@ -49,7 +49,7 @@ const Navbar = () => {
     },
     {
       label: "Suppliers",
-      icon: "pi pi-building",
+      icon: "pi pi-warehouse",
       command: () => navigate("/suppliers"),
     },
     {

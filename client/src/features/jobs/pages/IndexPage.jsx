@@ -25,7 +25,7 @@ const JobsIndexPage = () => {
     <>
       <PageTitle
         title="Jobs"
-        icon="pi pi-briefcase"
+        icon="pi pi-clipboard"
         onCreateClick={() => {
           setShowCreateModal(true);
         }}

@@ -18,7 +18,7 @@ const SupplierViewPage = () => {
 
   return (
     <>
-      <PageTitle title={supplier.description} icon="pi pi-building" />
+      <PageTitle title={supplier.description} icon="pi pi-warehouse" />
 
       <TabView>
         <TabPanel header="Overview">

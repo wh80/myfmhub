@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const accountSchema = z.object({
+export const createAccountSchema = z.object({
   organisation: z
     .string()
     .trim()
@@ -24,6 +24,10 @@ export const accountSchema = z.object({
     .max(255, "Max 255 characters"),
 });
 
-export const createAccountSchema = accountSchema;
-
-export const updateAccountSchema = accountSchema.partial(); // All fields optional
+export const updateAccountSchema = z.object({
+  description: z
+    .string()
+    .trim()
+    .min(3, "Min 3 characters")
+    .max(255, "Max 255 characters"),
+});

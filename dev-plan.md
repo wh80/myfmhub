@@ -3,7 +3,7 @@
 [] Files
 [x] Data Imports
 [] User Permissions
-[] Password reset
+[x] Password reset
 [] Account Management (close account)
 [] People / Users (inc. Import)
 [] Error handling (inc. CSV Import)

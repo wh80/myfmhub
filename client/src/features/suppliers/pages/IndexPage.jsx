@@ -23,7 +23,7 @@ const SuppliersIndexPage = () => {
     <>
       <PageTitle
         title="Suppliers"
-        icon="pi pi-building"
+        icon="pi pi-warehouse"
         onCreateClick={() => {
           setShowCreateModal(true);
         }}

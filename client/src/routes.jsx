@@ -3,6 +3,8 @@ import { Routes, Route, Link } from "react-router-dom";
 import AuthenticatedLayout from "./shared/layouts/AuthenticatedLayout";
 import RegisterPage from "./features/accounts/pages/RegisterPage";
 
+import AccountViewPage from "./features/accounts/pages/AccountViewPage";
+
 import LoginPage from "./features/auth/pages/LoginPage";
 import ForgotPasswordPage from "./features/auth/pages/ForgotPasswordPage";
 import ResetPasswordPage from "./features/auth/pages/ResetPasswordPage";
@@ -74,6 +76,7 @@ export default function AppRoutes() {
             element={<DataCategoriesPage />}
           />
           <Route path="/settings/data-import" element={<DataImportPage />} />
+          <Route path="/settings/account" element={<AccountViewPage />} />
         </Route>
 
         {/* Public Routes - No nav */}
