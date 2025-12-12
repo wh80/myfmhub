@@ -71,9 +71,9 @@ const Navbar = () => {
       command: () => navigate("/profile"),
     },
     {
-      label: "Change Password",
+      label: "Update Password",
       icon: "pi pi-key",
-      command: () => navigate("/change-password"),
+      command: () => navigate("/update-password"),
     },
     {
       separator: true,

@@ -2,7 +2,11 @@ import { Routes, Route, Link } from "react-router-dom";
 
 import AuthenticatedLayout from "./shared/layouts/AuthenticatedLayout";
 import RegisterPage from "./features/accounts/pages/RegisterPage";
+
 import LoginPage from "./features/auth/pages/LoginPage";
+import ForgotPasswordPage from "./features/auth/pages/ForgotPasswordPage";
+import ResetPasswordPage from "./features/auth/pages/ResetPasswordPage";
+import UpdatePasswordPage from "./features/auth/pages/UpdatePasswordPage";
 
 import LocationsIndexPage from "./features/locations/pages/LocationsIndexPage";
 
@@ -63,6 +67,8 @@ export default function AppRoutes() {
           <Route path="/dashboard" element={<DashboardIndexPage />} />
           <Route path="/reports" element={<ReportsIndexPage />} />
           <Route path="/settings" element={<SettingsIndexPage />} />
+
+          <Route path="/update-password" element={<UpdatePasswordPage />} />
           <Route
             path="/settings/data-categories"
             element={<DataCategoriesPage />}
@@ -73,6 +79,8 @@ export default function AppRoutes() {
         {/* Public Routes - No nav */}
 
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/login" element={<LoginPage />} />
       </Routes>
     </>

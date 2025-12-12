@@ -78,6 +78,12 @@ const LoginPage = () => {
               Register here
             </a>
           </p>
+          <p className="text-center mt-3">
+            Forgot password?{" "}
+            <a href="/forgot-password" className="font-medium text-primary">
+              Reset here
+            </a>
+          </p>
         </form>
       </Card>
     </div>

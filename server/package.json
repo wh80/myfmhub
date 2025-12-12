@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "seed:permissions": "node scripts/seedPermissions.js",
+    "create:scheduledJobs": "node scripts/createScheduledJobs.js"
   },
   "keywords": [],
   "author": "",

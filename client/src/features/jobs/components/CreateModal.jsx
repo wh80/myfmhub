@@ -13,6 +13,7 @@ import { Dropdown } from "primereact/dropdown";
 
 const JobCreateModal = ({ showModal, closeModal, locationId = undefined }) => {
   const [createJob, { isLoading, error }] = useCreateJobMutation();
+  const toast = useToast();
 
   const {
     data: locations,
@@ -25,8 +26,6 @@ const JobCreateModal = ({ showModal, closeModal, locationId = undefined }) => {
     error: categoriesError,
     isLoading: categoriesLoading,
   } = useGetAllCategoriesQuery("job-categories");
-
-  const toast = useToast();
 
   const [form, setForm] = useState({
     summary: "",
