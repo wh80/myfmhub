@@ -5,6 +5,8 @@ import {
   forgotPassword,
   resetPassword,
   updatePassword,
+  getAccountOptions,
+  setAccountOption,
 } from "./authController.js";
 
 const router = Router();
@@ -16,5 +18,7 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
 router.post("/update-password", requireAuth, updatePassword);
 router.get("/validate", requireAuth, validateAuth);
+router.get("/get-account-options", requireAuth, getAccountOptions);
+router.post("/set-account-option", requireAuth, setAccountOption);
 
 export default router;

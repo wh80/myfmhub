@@ -41,6 +41,22 @@ export const authApi = createApi({
         body: data,
       }),
     }),
+    // Used to load accounts for selection where user has multiple related accounts
+    getAccountOptions: builder.query({
+      query: () => ({
+        url: "/auth/get-account-options",
+        method: "GET",
+      }),
+    }),
+
+    // Used to set selected account where user has multiple related accounts
+    setAccountOption: builder.mutation({
+      query: (accountId) => ({
+        url: "/auth/set-account-option",
+        method: "POST",
+        body: accountId,
+      }),
+    }),
   }),
 });
 
@@ -50,4 +66,6 @@ export const {
   useForgotPasswordMutation,
   useResetPasswordMutation,
   useUpdatePasswordMutation,
+  useGetAccountOptionsQuery,
+  useSetAccountOptionMutation,
 } = authApi;

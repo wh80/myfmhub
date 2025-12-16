@@ -9,6 +9,7 @@ import LoginPage from "./features/auth/pages/LoginPage";
 import ForgotPasswordPage from "./features/auth/pages/ForgotPasswordPage";
 import ResetPasswordPage from "./features/auth/pages/ResetPasswordPage";
 import UpdatePasswordPage from "./features/auth/pages/UpdatePasswordPage";
+import AccountSelectionPage from "./features/auth/pages/AccountSelectionPage";
 
 import LocationsIndexPage from "./features/locations/pages/LocationsIndexPage";
 
@@ -45,6 +46,8 @@ export default function AppRoutes() {
       <Routes>
         {/* Authenticated Routes */}
         <Route element={<AuthenticatedLayout />}>
+          <Route path="/select-account" element={<AccountSelectionPage />} />
+
           <Route path="/locations" element={<LocationsIndexPage />} />
 
           <Route path="/assets" element={<AssetsIndexPage />} />

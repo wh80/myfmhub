@@ -18,11 +18,38 @@ export async function loginUser(req, res) {
   const { email, password } = validated.data;
 
   try {
-    const user = await prisma.user.findFirst({ where: { email } });
+    const user = await prisma.user.findFirst({
+      where: { email },
+      include: { accounts: true },
+    });
 
     if (!user || user.password !== password) {
       return res.status(400).json({ message: "Email or password invalid" });
     }
+
+    // Handle account selection based on available accounts
+    let activeAccountId;
+    let requiresAccountSelection = false;
+
+    if (user.accounts.length === 0) {
+      // Edge case: User has no accounts (shouldn't happen but good to handle)
+      return res.status(403).json({
+        error: "No accounts associated with this user",
+      });
+    } else if (user.accounts.length === 1) {
+      // Single account - set it automatically
+      activeAccountId = user.accounts[0].id;
+    } else {
+      // Multiple accounts - require selection
+      activeAccountId = null;
+      requiresAccountSelection = true;
+    }
+
+    // Step 3 - Update the user's activeAccountId
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { activeAccountId },
+    });
 
     const payload = { id: user.id };
 
@@ -34,7 +61,7 @@ export async function loginUser(req, res) {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
+
       secure: isProduction, // true in prod, false in dev
       sameSite: isProduction ? "strict" : "lax", // strict in prod, lax in dev
       maxAge: 12 * 60 * 60 * 1000, // 12 hours - make sure this matches token
@@ -42,7 +69,17 @@ export async function loginUser(req, res) {
 
     // Remove password from returned user data - consider returning Person?
     const { password: _, ...safeUser } = user;
-    console.log("Auth process passed");
+
+    // If user has multiple accounts they need to select activeAccountId for this session
+    // Send back flag to prompt selection
+    if (requiresAccountSelection) {
+      return res.status(200).json({
+        user: safeUser,
+        requiresAccountSelection: true,
+      });
+    }
+
+    // Standard return when no account selection required
     res.status(200).json({ user: safeUser });
   } catch (error) {
     console.error(error);
@@ -210,5 +247,63 @@ export async function updatePassword(req, res) {
   } catch (error) {
     console.error("Update password error:", error);
     return res.status(500).json({ message: "An error occurred" });
+  }
+}
+
+export async function getAccountOptions(req, res) {
+  const user = req.user;
+
+  try {
+    const userData = await prisma.user.findUnique({
+      where: { id: user.id },
+      include: {
+        accounts: {
+          select: {
+            id: true,
+            description: true,
+          },
+        },
+      },
+    });
+
+    if (!userData) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({
+      accounts: userData.accounts,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch accounts" });
+  }
+}
+
+export async function setAccountOption(req, res) {
+  const user = req.user;
+  const { accountId } = req.body;
+
+  try {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { activeAccountId: accountId },
+    });
+
+    if (!userData) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({
+      accounts: userData.accounts,
+    });
+  } catch (error) {
+    console.error(error);
+
+    // Handle not found
+    if (error.code === "P2025") {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(500).json({ error: "Failed to fetch accounts" });
   }
 }

@@ -180,10 +180,56 @@ export async function deleteAccount(req, res) {
   const accountId = req.user.accountId;
 
   try {
-    await prisma.account.delete({
-      where: { id: accountId },
+    await prisma.$transaction(async (tx) => {
+      // Step 1 - Get all users associated with this account
+      const users = await tx.user.findMany({
+        where: {
+          accounts: {
+            some: { id: accountId },
+          },
+        },
+        include: {
+          accounts: true,
+        },
+      });
+
+      // Step 2 - Delete users where the only account is the account being deleted
+      const usersToDelete = users.filter((user) => user.accounts.length === 1);
+
+      await Promise.all(
+        usersToDelete.map((user) =>
+          tx.user.delete({
+            where: { id: user.id },
+          })
+        )
+      );
+
+      // Step 3 - Update users that have multiple related accounts
+      // Remove the account relationship and reset activeAccountId
+      const usersToUpdate = users.filter((user) => user.accounts.length > 1);
+
+      await Promise.all(
+        usersToUpdate.map((user) =>
+          tx.user.update({
+            where: { id: user.id },
+            data: {
+              activeAccountId: null, // Force account selection on next login
+              accounts: {
+                disconnect: { id: accountId },
+              },
+            },
+          })
+        )
+      );
+
+      // Step 4 - Delete the account
+      // This will cascade delete all Person records via onDelete: Cascade
+      await tx.account.delete({
+        where: { id: accountId },
+      });
     });
-    res.status(204).send(); // No body with 204
+
+    res.status(204).send();
   } catch (error) {
     console.error(error);
 

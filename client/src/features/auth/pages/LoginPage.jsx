@@ -27,11 +27,17 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       const result = await loginUser(form).unwrap();
+
       console.log(result);
       if (result.user) {
         dispatch(setUser(result.user));
-        console.log("Navigating to /locations");
-        navigate("/locations", { state: { fromLogin: true } });
+
+        // If user has multiple accounts, redirect for selection
+        if (result.requiresAccountSelection == true) {
+          navigate("/select-account");
+        } else {
+          navigate("/locations", { state: { fromLogin: true } });
+        }
       }
     } catch (err) {
       console.error("Failed to login:", err);
